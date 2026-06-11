@@ -8,6 +8,7 @@ import Login from './components/Login'
 import Signup from './components/Signup'
 import Logout from './components/Logout'
 import Navbar from './components/Navbar'
+import Cart from './pages/Cart'
 
 const ScrollToTop = () => {
   const { pathname } = useLocation()
@@ -59,7 +60,7 @@ const App = () => {
         {/* protects the cart route - only logged-in users can access it.
         element = what to render
         */}
-
+        {/* React component names must start with an uppercase letter. <cart/> react treat this as HTML element not component */}
 
         {/* AUTH ROUTES */}
         <Route path='/login' element={<Login />} />
