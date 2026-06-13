@@ -17,6 +17,8 @@ import { fileURLToPath } from "url";
 
 import userRouter from "./routes/userRoute.js";
 import itemrouter from "./routes/productRoute.js";
+import authMiddleware from "./middleware/auth.js";
+import cartRouter from "./routes/cartRoute.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -39,6 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 connectDB();
 // ROUTES
 app.use("/api/user", userRouter);
+app.use('/api/cart',authMiddleware,cartRouter)
 
 app.use("/uploads", express.static(path.join(__dirname,'uploads')));
 app.use('/api/items',itemrouter)
