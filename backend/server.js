@@ -2,7 +2,6 @@
 import express from "express";
 import cors from "cors";
 
-
 import "dotenv/config";
 import { connectDB } from "./config/db.js";
 
@@ -19,6 +18,7 @@ import userRouter from "./routes/userRoute.js";
 import itemrouter from "./routes/productRoute.js";
 import authMiddleware from "./middleware/auth.js";
 import cartRouter from "./routes/cartRoute.js";
+import orderrouter from "./routes/orderRoute.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -30,7 +30,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // MIDDLEWARE
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+      // List of frontend URLs allowed to access your API
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        // Allow the request
+      } else {
+        callback(new Error("Not allowed by CORS"));
+        // Block the request
+      }
+    },
+    credentials:true,
+    // Allow authentication headers & cookies
+  }),
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -41,15 +57,17 @@ app.use(express.urlencoded({ extended: true }));
 connectDB();
 // ROUTES
 app.use("/api/user", userRouter);
-app.use('/api/cart',authMiddleware,cartRouter)
+app.use("/api/cart", authMiddleware, cartRouter);
 
-app.use("/uploads", express.static(path.join(__dirname,'uploads')));
-app.use('/api/items',itemrouter)
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/items", itemrouter);
+
 // Makes files in uploads/ folder accessible via HTTP
 // when someone requests a file, Express serves it directly
 // ex:
 // File on disk: uploads/1718349234567-photo.jpg
 // URL to access: http://localhost:5000/uploads/1718349234567-photo.jpg
+app.use("/api/orders", orderrouter);
 
 app.get("/", (req, res) => {
   res.send("API WORKING");

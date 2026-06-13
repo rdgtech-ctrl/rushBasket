@@ -1,6 +1,7 @@
+import Stripe from 'stripe'
 import Order from "../models/orderModel";
 import {v4 as uuidv4} from 'uuid'
-
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY)
 
 // CREATE A NEW ORDER
 export const createOrder = async (req, res) => {
