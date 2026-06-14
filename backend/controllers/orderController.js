@@ -7,7 +7,7 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY)
 export const createOrder = async (req, res) => {
   try {
     const { customer, items, paymentMethod, notes, deliveryDate } = req.body;
-    if (!Array.isArray(items) || items.length){
+    if (!Array.isArray(items) || !items.length){
         return res.status(400).json({
             message:'Invalid or empty items array'
         })
@@ -21,7 +21,7 @@ export const createOrder = async (req, res) => {
         name:i.name,
         price:Number(i.price),
         quantity:Number(i.quantity),
-        imageUrl = i.imageUrl
+        imageUrl: i.imageUrl
     }));
     const orderId = `ORD-${uuidv4()}`
     let newOrder;
@@ -82,7 +82,7 @@ export const createOrder = async (req, res) => {
 export const confirmPayment = async(req,res) => {
     try {
         const {session_id} = req.body;
-        if (!session_id) return stripe.checkout.sessions.retrieve(session_id);
+        if (!session_id) return res.status(400).json({message:'session_id required'});
         const session = await stripe.checkout.sessions.retrieve(session_id);
 
         if(session.payment_status !== 'paid'){
@@ -95,7 +95,7 @@ export const confirmPayment = async(req,res) => {
             {new:true}
         );
         if (!order) return res.status(400).json({message:'Order not found'})
-            res.json(order)
+        res.json(order)
     } catch (err) {
     res.status(500).json({message:'Server Error',error:err.message})
   }
@@ -133,13 +133,13 @@ export const updateOrder = async(req,res,next) => {
         const updateData = {}
         allowed.forEach(field => {
             if(req.body[field] !== undefined){
-                updateData[field] req.body[field]
+                updateData[field] = req.body[field]
             }
         })
         const updated = await Order.findByIdAndUpdate(
             req.params.id,
             updateData,
-            {new:true,runValidator:true}
+            {new:true,runValidators:true}
         ).lean()
 
         if (!updated){
@@ -147,7 +147,7 @@ export const updateOrder = async(req,res,next) => {
         }
         res.json(updated)
     } catch (error) {
-        next(err)
+        next(error)
     }
 }
 
@@ -159,6 +159,6 @@ export const deleteOrder = async (req,res,next) => {
             return res.status(404).json({message:'Order deleted successfully'})
         }
     } catch (error) {
-        next(err)
+        next(error)
     }
 }
