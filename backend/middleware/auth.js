@@ -1,5 +1,5 @@
 // Middleware intercepts requests before they reach your routes. An auth middleware checks if the user is logged in
-import User from "../models/userModel";
+import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_here";
